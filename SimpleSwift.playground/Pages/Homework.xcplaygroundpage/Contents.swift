@@ -1,5 +1,7 @@
 //: # Welcome to the UW Calculator Playground (Simple Version)
 //:
+
+import Darwin
 print("Welcome to the UW Calculator Playground")
 //: This homework is designed to force you to exercise your knowledge of the Swift programming language. This homework does not involve iOS in any way. It uses the Playground feature of XCode to allow you to interactively write Swift code--the compiler will constantly check your code in the background.
 //:
@@ -50,11 +52,104 @@ print("Welcome to the UW Calculator Playground")
 //: For this latter set of operations, it is safe to assume that `["count"]` (no additional arguments) is 0, `["avg"]` is also 0, and `["fact"]` is 0. `["1", "fact"]` should return 1, and `["0", "fact"]` should also return 1. (Yes, 0-factorial is 1. True story.)
 //: 
 func calculate(_ args: [String]) -> Int {
+    let lastArg = args[args.count - 1]
+    if (Int(lastArg) != nil) {  // if the last character is not an operator
+        let optr: String = args[1]
+        var res: Int?
+        switch optr {
+        case "+":
+            res = (Int(args[0]))! + (Int(args[2]))!
+        case "-":
+            res = (Int(args[0]))! - (Int(args[2]))!
+        case "/":
+            res = (Int(args[0]))! / (Int(args[2]))!
+        case "%":
+            res = (Int(args[0]))! % (Int(args[2]))!
+        case "*":
+            res = (Int(args[0]))! * (Int(args[2]))!
+        default:
+            print("invalid operator")
+        }
+        return res!
+    } else {  // if the last character is an operator
+        // if no argument
+        if (args.count == 1) {
+            return 0
+        }
+        let optr: String = args[args.count - 1]  // get the operator
+        switch optr {
+        case "fact":
+            var res: Int = 1
+            // return 1 if the argument is 1 or 0
+            if (Int(args[0])! == 0 || Int(args[0])! == 1) {
+                return 1
+            } else {
+                for i in 1...Int(args[0])! {
+                    res *= i
+                }
+            }
+            return res;
+        case "count":
+            return args.count - 1;
+        case "avg":
+            var res: Int = 0
+            // sum up every number except the operator
+            for i in 0...args.count - 2 {
+                res += Int(args[i])!
+            }
+            return res / (args.count - 1)
+        default:
+            print("Invalid operator")
+        }
+    }
     return -1
 }
 
 func calculate(_ arg: String) -> Int {
-    return -1
+    let components = arg.split(separator: " ")  // process the input to a string array
+    
+    // return the result if the operator is "fact"
+    if (components[components.count - 1] == "fact") {
+        var res: Int = 1
+        for i in 1...Int(components[0])! {
+            res *= i
+        }
+        return res
+    }
+    
+    // save the numbers
+    var nums: [Int] = []
+    var optr: String?
+    for component in components {
+        if (Int(component) != nil) {
+            nums.append(Int(component)!)
+        } else {
+            optr = String(component)
+        }
+    }
+    
+    // calcualte the result based on the operator
+    switch optr {
+    case "+":
+        return nums[0] + nums[1]
+    case "-":
+        return nums[0] - nums[1]
+    case "/":
+        return nums[0] / nums[1]
+    case "*":
+        return nums[0] * nums[1]
+    case "%":
+        return nums[0] % nums[1]
+    case "count":
+        return nums.count
+    default:
+        var sum: Int = 0
+        for num in nums {
+            sum += num
+        }
+        return sum / nums.count
+    }
+    
 }
 
 //: Below this are the test expressions/calls to verify if your code is correct.
@@ -105,7 +200,7 @@ calculate("5 fact") == 120
 //: Implement `calculate([String])` and `calculate(String)` to handle negative numbers. You need only make the tests below pass. (You do not need to worry about "fact"/factorial with negative numbers, for example.)
 //:
 //: This is worth 1 pt
-/*
+
 calculate(["2", "+", "-2"]) == 0
 calculate(["2", "-", "-2"]) == 4
 calculate(["2", "*", "-2"]) == -4
@@ -120,19 +215,68 @@ calculate("2 - -2") == 4
 calculate("-2 / 2") == -1
 
 calculate("1 -2 3 -4 5 count") == 5
-*/
+
  
 //: Implement `calculate([String])` and `calculate(String)` to use and return floating-point values. You need only make the tests below pass. (Factorial of floating-point numbers doesn't make much sense, either.)
 //:
 //: Swift *will* allow you to overload based on return times, so the below functions can co-exist simultaneously with the Integer-based versions above.
 //: 
 //: This is worth 1 pt
-/*
+
 func calculate(_ args: [String]) -> Double {
-    return -1.0
+    var nums: [Double] = []
+    var optr: String?
+    for arg in args {
+        if (Double(arg) != nil) {
+            nums.append(Double(arg)!)
+        } else {
+            optr = String(arg)
+        }
+    }
+    
+    switch optr{
+    case "+":
+        return nums[0] + nums[1]
+    case "-":
+        return nums[0] - nums[1]
+    case "*":
+        return nums[0] * nums[1]
+    case "/":
+        return nums[0] / nums[1]
+    case "%":
+        return nums[0].truncatingRemainder(dividingBy: nums[1])
+    default:
+        return Double(nums.count)
+    }
 }
 func calculate(_ arg: String) -> Double {
-    return -1.0
+    let components = arg.split(separator: " ")
+    
+    var nums: [Double] = []
+    var optr: String?
+    
+    for component in components {
+        if (Double(component) != nil) {
+            nums.append(Double(component)!)
+        } else {
+            optr = String(component)
+        }
+    }
+    
+    switch optr{
+    case "+":
+        return nums[0] + nums[1]
+    case "-":
+        return nums[0] - nums[1]
+    case "*":
+        return nums[0] * nums[1]
+    case "/":
+        return nums[0] / nums[1]
+    case "%":
+        return nums[0].truncatingRemainder(dividingBy: nums[1])
+    default:
+        return Double(nums.count)
+    }
 }
 
 calculate(["2.0", "+", "2.0"]) == 4.0
@@ -142,4 +286,4 @@ calculate(["2.5", "*", "2.5"]) == 6.25
 calculate(["2.0", "/", "2.0"]) == 1.0
 calculate(["2.0", "%", "2.0"]) == 0.0
 calculate("1.0 2.0 3.0 4.0 5.0 count") == 5.0
-*/
+
